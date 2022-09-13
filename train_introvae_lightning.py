@@ -47,7 +47,7 @@ class introvae(CKBrainMet):
         e_optim.zero_grad()
         d_optim.zero_grad()
 
-        image = norm(batch['image'])
+        image = batch['image']
         
         z, z_mu, z_logvar = self.E(image)
         z_p = torch.randn_like(z)
