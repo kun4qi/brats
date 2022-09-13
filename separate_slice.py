@@ -1,8 +1,12 @@
+import argparse
 from glob import glob
 import os
 import numpy as np
 import nibabel as nib
 from tqdm import tqdm
+from skimage.transform import resize
+
+from utils import load_json
 
 
 
@@ -28,7 +32,7 @@ def z_score_normalize(image):
     return image 
 
 
-def separate_slices(patient_paths, dst_dir_path):
+def separate_slices(patient_paths, dst_dir_path, slice_size):
     for patient_path in tqdm(patient_paths):
         patient_id = os.path.basename(patient_path)
 
@@ -51,6 +55,9 @@ def separate_slices(patient_paths, dst_dir_path):
         for slice_num in range(seg_volume.shape[2]):
             seg_slice = seg_volume[..., slice_num]
 
+            if seg_slice.shape != (slice_size, slice_size):
+                seg_slice = resize(seg_slice, (slice_size, slice_size))
+
             class_name = 'Abnormal' if seg_slice.max() > 0 else 'Normal'
 
             dst_patient_dir_path = os.path.join(dst_dir_path, class_name, patient_id)
@@ -59,6 +66,9 @@ def separate_slices(patient_paths, dst_dir_path):
             for img_modality in IMAGE_MODALITIES:
                 img_volume = volumes[img_modality]
                 img_slice = img_volume[..., slice_num]
+
+                if img_slice.shape != (slice_size, slice_size):
+                    img_slice = resize(img_slice, (slice_size, slice_size))
 
                 img_save_path = os.path.join(
                     dst_patient_dir_path, '{}_{}_{}.npy'.format(
@@ -88,5 +98,11 @@ if __name__ == "__main__":
     assert len(train_patient_paths) == 335 
     assert len(val_test_patient_paths) == 291 
 
-    separate_slices(train_patient_paths, os.path.join(DST_ROOT_PATH, 'MICCAI_BraTS_2019_Data_Training'))
-    separate_slices(val_test_patient_paths, os.path.join(DST_ROOT_PATH, 'MICCAI_BraTS_2019_Data_Val_Testing'))
+    parser = argparse.ArgumentParser(description='Unsupervised Lesion Detection')
+    parser.add_argument('-c', '--config', help='training config file', required=True)
+    args = parser.parse_args()
+
+    config = load_json(args.config)
+
+    separate_slices(train_patient_paths, os.path.join(DST_ROOT_PATH, 'MICCAI_BraTS_2019_Data_Training'), config.dataset.image_size)
+    separate_slices(val_test_patient_paths, os.path.join(DST_ROOT_PATH, 'MICCAI_BraTS_2019_Data_Val_Testing'), config.dataset.image_size)
