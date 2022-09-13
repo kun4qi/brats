@@ -19,7 +19,6 @@ from models import Decoder
 from models.utils import apply_spectral_norm
 from utils import load_json
 from utils import check_manual_seed
-from utils import norm
 from utils import denorm
 from utils import Logger
 from utils import ModelSaver
@@ -47,8 +46,7 @@ class vae(CKBrainMet):
         e_optim.zero_grad()
         d_optim.zero_grad()
 
-
-        image = norm(batch['image'])
+        image = batch['image']
         z, z_mu, z_logvar = self.E(image)
         x_r = self.D(z)
 
