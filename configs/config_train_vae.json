@@ -12,7 +12,7 @@
   "save": {
     "study_name": "vae_beta_0.04_margin_120_enc_lr_0.0001_dec_lr_0.005-1",
     "output_root_dir": "result/",
-    "save_epoch_interval": 5,
+    "save_epoch_interval": 2,
     "n_saved": 5,
     "log_iter_interval": 100,
     "n_save_images": 8
@@ -49,7 +49,7 @@
     ],
     "enc_activation": "leaky_relu",
     "dec_activation": "leaky_relu",
-    "dec_final_activation": "tanh",
+    "dec_final_activation": "none",
     "enc_spectral_norm": true,
     "dec_spectral_norm": true,
     "saved": false
