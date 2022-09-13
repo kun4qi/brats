@@ -98,9 +98,9 @@ class CKBrainMet(LightningModule):
                     x_r = self.D(z)
                     x_p = self.D(self.fixed_z)
 
-                    image = denorm(image).detach().cpu()
-                    x_r = denorm(x_r).detach().cpu()
-                    x_p = denorm(x_p).detach().cpu()
+                    image = image.detach().cpu()
+                    x_r = x_r.detach().cpu()
+                    x_p = x_p.detach().cpu()
 
                     image = image[:self.config.save.n_save_images, ...]
                     x_r = x_r[:self.config.save.n_save_images, ...]
