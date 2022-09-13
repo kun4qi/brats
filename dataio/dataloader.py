@@ -11,7 +11,6 @@ from .transformation import RandomSliceSelect
 
 import numpy as np
 import os
-from skimage.transform import resize
 import re
 from glob import glob
 
@@ -97,10 +96,6 @@ class CKBrainMetDataset(Dataset):
         image = np.load(self.files[index]['image'])
         image = np.flipud(np.transpose(image))
 
-        if self.image_size:
-            if image.shape != (self.image_size, self.image_size):
-                image = resize(image, (self.image_size, self.image_size))
-
         sample = {
             'image': image.astype(np.float32),
             'patient_id': self.files[index]['patient_id'],
@@ -115,10 +110,6 @@ class CKBrainMetDataset(Dataset):
                 label = np.flipud(np.transpose(label))
             else:
                 label = np.zeros_like(image)
-
-            if self.image_size:
-                if label.shape != (self.image_size, self.image_size):
-                    label = resize(label, (self.image_size, self.image_size))
 
             sample.update({
                 'label': label.astype(np.int32),
