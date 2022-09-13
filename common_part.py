@@ -93,7 +93,7 @@ class CKBrainMet(LightningModule):
         if batch_idx == 0:
             if self.needs_save:
                 if self.current_epoch % self.config.save.save_epoch_interval == 0:
-                    image = norm(batch['image'])
+                    image = batch['image']
                     z, _, _ = self.E(image)
                     x_r = self.D(z)
                     x_p = self.D(self.fixed_z)
