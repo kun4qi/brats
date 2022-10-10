@@ -19,6 +19,7 @@ from models import Decoder
 from models.utils import apply_spectral_norm
 from utils import load_json
 from utils import check_manual_seed
+from utils import norm
 from utils import denorm
 from utils import Logger
 from utils import ModelSaver
@@ -46,15 +47,18 @@ class vae(CKBrainMet):
         e_optim.zero_grad()
         d_optim.zero_grad()
 
+
+        # image = norm(batch['image'])
         image = batch['image']
         z, z_mu, z_logvar = self.E(image)
+        #print(z.shape)
         x_r = self.D(z)
 
         l_vae_reg = self.l_reg(z_mu, z_logvar)
 
         l_vae_recon = self.l_recon(x_r, image)
 
-        l_vae_total = l_vae_reg + l_vae_recon
+        l_vae_total = self.alpha * l_vae_reg + self.beta * l_vae_recon
 
         self.manual_backward(l_vae_total)
 
