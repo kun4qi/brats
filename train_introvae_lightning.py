@@ -50,6 +50,7 @@ class introvae(CKBrainMet):
         image = batch['image']
         
         z, z_mu, z_logvar = self.E(image)
+        #print(z.shape)
         z_p = torch.randn_like(z)
         x_r = self.D(z)
         x_p = self.D(z_p)
@@ -63,13 +64,16 @@ class introvae(CKBrainMet):
         )
         l_enc_latent = l_enc_reg + l_enc_margin
         l_enc_recon = self.l_recon(x_r, image)
-        l_enc_total = l_enc_latent + l_enc_recon
+        l_enc_total = l_enc_latent + self.config.training.recon_weight * l_enc_recon 
 
         z_r, z_r_mu, z_r_logvar = self.E(x_r)
         z_pp, z_pp_mu, z_pp_logvar = self.E(x_p)
         l_dec_latent = self.alpha * (self.l_reg(z_r_mu, z_r_logvar) + self.l_reg(z_pp_mu, z_pp_logvar))
         l_dec_recon = self.l_recon(x_r, image)
         l_dec_total = l_dec_latent + l_dec_recon
+
+        #mem = torch.cuda.memory_reserved() / 1E9 if torch.cuda.is_available() else 0
+        #print(mem)
 
         self.manual_backward(l_enc_total, retain_graph=True)
         self.manual_backward(l_dec_total)
@@ -150,6 +154,7 @@ def main(config, needs_save):
       trainer.fit(model, dm)
 
     else:
+      print(f'model load from {config.save.load_model_dir + config.save.model_savename}')
       model = introvae.load_from_checkpoint(config.save.load_model_dir + config.save.model_savename, config=config, needs_save=needs_save,)
       trainer.fit(model, dm)
 
