@@ -50,7 +50,6 @@ class introvae(CKBrainMet):
         image = batch['image']
         
         z, z_mu, z_logvar = self.E(image)
-        #print(z.shape)
         z_p = torch.randn_like(z)
         x_r = self.D(z)
         x_p = self.D(z_p)
@@ -62,23 +61,20 @@ class introvae(CKBrainMet):
             F.relu(self.margin - self.l_reg(z_r_mu, z_r_logvar)) +
             F.relu(self.margin - self.l_reg(z_pp_mu, z_pp_logvar))
         )
-        l_enc_latent = l_enc_reg + l_enc_margin
+        l_enc_latent = self.config.training.w_enc_reg * l_enc_reg + self.config.training.w_enc_margin * l_enc_margin
         l_enc_recon = self.l_recon(x_r, image)
-        l_enc_total = l_enc_latent + self.config.training.recon_weight * l_enc_recon 
-
-        z_r, z_r_mu, z_r_logvar = self.E(x_r)
-        z_pp, z_pp_mu, z_pp_logvar = self.E(x_p)
-        l_dec_latent = self.alpha * (self.l_reg(z_r_mu, z_r_logvar) + self.l_reg(z_pp_mu, z_pp_logvar))
-        l_dec_recon = self.l_recon(x_r, image)
-        l_dec_total = l_dec_latent + l_dec_recon
-
-        #mem = torch.cuda.memory_reserved() / 1E9 if torch.cuda.is_available() else 0
-        #print(mem)
+        l_enc_total = self.config.training.w_enc_latent * l_enc_latent + self.config.training.w_enc_recon * l_enc_recon 
 
         self.manual_backward(l_enc_total, retain_graph=True)
-        self.manual_backward(l_dec_total)
-
         e_optim.step()
+
+        z_r, z_r_mu, z_r_logvar = self.E(x_r.detach())
+        z_pp, z_pp_mu, z_pp_logvar = self.E(x_p)
+        l_dec_latent = self.alpha * (self.l_reg(z_r_mu, z_r_logvar) + self.l_reg(z_pp_mu, z_pp_logvar))
+        l_dec_recon = self.l_recon(x_r.detach(), image)
+        l_dec_total = self.config.training.w_dec_latent * l_dec_latent + self.config.training.w_dec_recon * l_dec_recon
+
+        self.manual_backward(l_dec_total)
         d_optim.step()
 
         if self.needs_save:
