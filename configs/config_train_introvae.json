@@ -1,66 +1,73 @@
 {
-    "training": {
-      "seed": 2704,
-      "loss": "ssim+l2",
-      "alpha": 0.5,
-      "beta": 0.04,
-      "margin": 120,
-      "n_epochs": 200,
-      "use_cuda": true,
-      "visible_devices": "0"
-    },
-    "save": {
-      "study_name": "introvae_z_64_2_2",
-      "output_root_dir": "result/",
-      "save_epoch_interval": 5,
-      "n_saved": 5,
-      "log_iter_interval": 100,
-      "n_save_images": 8,
-      "load_model_dir": "/home/ace14359yb/brats/code/result/z_64_2_2/version_0/",
-      "model_savename": "ckpt-epoch=0199.ckpt",
-      "num_seed": 100
-    },
-    "dataset": {
-      "mode": "train",
-      "name": "Dataset",
-      "root_dir_path": "./data/brats_separated",
-      "select_slice": "flair",
-      "use_augmentation": true,
-      "batch_size": 60,
-      "num_workers": 4,
-      "image_size": 256
-    },
-    "model": {
-      "input_dim": 1,
-      "z_dim": 64,
-      "enc_filters": [
-      32,
-      64,
-      128,
-      256,
-      512,
-      512,
-      512
-      ],
-      "dec_filters": [
-      512,
-      512,
-      512,
-      256,
-      128,
-      64,
-      32,
-      16
-      ],
-      "enc_activation": "leaky_relu",
-      "dec_activation": "leaky_relu",
-      "dec_final_activation": "none",
-      "enc_spectral_norm": true,
-      "dec_spectral_norm": true,
-      "saved": true
-    },
-    "optimizer": {
-      "enc_lr": 0.0001,
-      "dec_lr": 0.005
-    }
+  "training": {
+    "seed": 2704,
+    "loss": "ssim+l2",
+    "alpha": 0.5,
+    "beta": 0.04,
+    "margin": 120,
+    "w_enc_reg":1.0,
+    "w_enc_margin":1.0,
+    "w_enc_latent":1.0,
+    "w_enc_recon":0.5,
+    "w_dec_latent":1.0,
+    "w_dec_recon":1.0,
+    "n_epochs": 200,
+    "use_cuda": true,
+    "visible_devices": "0"
+  },
+  "save": {
+    "study_name": "introvae_z_64_2_2_w_enc_recon_0.5",
+    "output_root_dir": "result/",
+    "save_epoch_interval": 40,
+    "save_image_epoch_interval": 5,
+    "n_saved": 5,
+    "log_iter_interval": 100,
+    "n_save_images": 8,
+    "load_model_dir": "",
+    "model_savename": "",
+    "num_seed": 100
+  },
+  "dataset": {
+    "mode": "train",
+    "name": "Dataset",
+    "root_dir_path": "./data/brats_separated",
+    "select_slice": "flair",
+    "use_augmentation": true,
+    "batch_size": 32,
+    "num_workers": 4,
+    "image_size": 256
+  },
+  "model": {
+    "input_dim": 1,
+    "z_dim": 64,
+    "enc_filters": [
+    32,
+    64,
+    128,
+    256,
+    512,
+    512,
+    512
+    ],
+    "dec_filters": [
+    512,
+    512,
+    512,
+    256,
+    128,
+    64,
+    32,
+    16
+    ],
+    "enc_activation": "leaky_relu",
+    "dec_activation": "leaky_relu",
+    "dec_final_activation": "none",
+    "enc_spectral_norm": true,
+    "dec_spectral_norm": true,
+    "saved": false
+  },
+  "optimizer": {
+    "enc_lr": 0.0001,
+    "dec_lr": 0.005
   }
+}
